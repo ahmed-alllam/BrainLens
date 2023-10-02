@@ -1,0 +1,5 @@
+outs:
+- md5: 93084b59152c6ce6b27ae5c51529f16b
+  size: 2104299520
+  hash: md5
+  path: test_subj01_1.tar
