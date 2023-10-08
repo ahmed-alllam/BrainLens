@@ -16,7 +16,8 @@ class VoxelEncoder(nn.Module):
         self.mlp = nn.ModuleList([linear_block(hidden_dim, hidden_dim, 0.25) for _ in range(num_blocks)])
         
         self.linear2 = nn.Linear(hidden_dim, 64 * 16 * 16, bias=False)
-        self.group_norm = nn.GroupNorm(1, 64)
+        
+        self.layer_norm = nn.LayerNorm(64)
 
         self.diffusion_decoder = Decoder(
             in_channels=64,
@@ -36,7 +37,7 @@ class VoxelEncoder(nn.Module):
         x = self.linear2(x)
 
         x = x.view(-1, 64, 16, 16)
-        x = self.group_norm(x)
+        x = self.layer_norm(x)
 
         x = self.diffusion_decoder(x)
 
