@@ -13,7 +13,7 @@ class VoxelEncoder(nn.Module):
             )
 
         self.linear1 = linear_block(input_dim, hidden_dim)
-        self.mlp = nn.ModuleList([linear_block(hidden_dim, hidden_dim, 0.25) for _ in range(num_blocks)])
+        self.mlp = nn.ModuleList([linear_block(hidden_dim, hidden_dim, dropout_prob=0.25) for _ in range(num_blocks)])
         
         self.linear2 = nn.Linear(hidden_dim, 64 * 16 * 16, bias=False)
         
