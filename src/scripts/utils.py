@@ -8,9 +8,8 @@ from torch.utils.data import DataLoader
 
 import webdataset as wds
 
-train_urls = "../data/test_subj01_{i}.tar" # ToDo: change to train_subj01
-meta_url = "../data/test_subj01.meta.json" # ToDo: change to the right meta file path
-
+test_urls = "data/test/test_subj01_{i}.tar"
+meta_url = "data/meta.json"
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -19,15 +18,20 @@ def seed_everything(seed):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
 
-def create_train_dataloader(batch_size, num_workers):
-    train_urls = list(train_urls.format(i=i) for i in range(1))
-    dataset = wds.WebDataset(train_urls).decode("torch").to_tuple("voxels", "images", "trial")
+def create_test_dataloader(batch_size, num_workers):
+    test_urls_list = list(test_urls.format(i=i) for i in range(1))
+
+    dataset = wds.WebDataset(test_urls_list, resampled=False)\
+                .decode("torch")\
+                .rename(images="jpg;png", voxels="nsdgeneral.npy", trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
+                .to_tuple("voxels", "images", "coco")\
+                .batched(batch_size, partial=True)
 
     dataloader = DataLoader(dataset, 
-                            batch_size=batch_size, 
-                            num_workers=num_workers,
-                            shuffle=True)
+                            batch_size=None,
+                            shuffle=False, 
+                            num_workers=num_workers)
     
-    num = json.load(open(meta_url))['totals']['train']
+    num = json.load(open(meta_url))['totals']['test']
 
     return dataloader, num

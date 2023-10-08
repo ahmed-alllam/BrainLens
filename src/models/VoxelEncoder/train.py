@@ -8,7 +8,12 @@ import tqdm
 
 from diffusers.models import AutoencoderKL
 
-from models import VoxelEncoder
+from model import VoxelEncoder
+
+import sys
+from os import path
+
+sys.path.append(path.dirname(path.dirname(path.dirname(path.realpath(__file__)))))
 
 from scripts import utils
 
@@ -21,7 +26,7 @@ input_dim=15724
 hidden_dim=4069
 num_blocks=4
 
-batch_size = 32
+batch_size = 64
 num_workers = 4
 num_epochs = 120
 
@@ -31,7 +36,7 @@ max_lr = 5e-4
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def create_model(num_steps_per_epoch):
+def create_model():
     model = VoxelEncoder(
         input_dim=input_dim,
         hidden_dim=hidden_dim,
@@ -43,7 +48,7 @@ def create_model(num_steps_per_epoch):
 def train():
     utils.seed_everything(seed)
 
-    voxel_image_dataloader, num_train_samples = utils.create_train_dataloader(
+    voxel_image_dataloader, num_train_samples = utils.create_test_dataloader(  # ToDo: Change to train, once downloaded
         batch_size=batch_size,
         num_workers=num_workers
     )
@@ -60,10 +65,13 @@ def train():
         sample_size=256
     )
 
+    # Todo: Load checkpoint of diffusion vae
+
     optimizer = optim.AdamW(voxel_encoder.parameters(), lr=initial_lr)
 
     lr_scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
+        epochs=num_epochs,
         max_lr=max_lr,
         steps_per_epoch=num_steps_per_epoch,
         div_factor=1e3,
@@ -71,25 +79,32 @@ def train():
         pct_start=2/num_epochs,
     )
 
+    voxel_encoder.to(device)
+    diffusion_autoencoder.to(device)
+
     for epoch in tqdm.tqdm(range(num_epochs)):
         for i, (voxel, image, _) in enumerate(voxel_image_dataloader):
-            optimizer.zero_grad()
+            with torch.cuda.amp.autocast(False):
 
-            voxel = voxel.to(device)
-            image = image.to(device)
+                voxel = torch.mean(voxel, axis=1).to(device).float()
+                image = image.to(device)
 
-            voxel_pred = voxel_encoder(voxel)
-            image_pred = diffusion_autoencoder.encode(image)
+                voxel_pred = voxel_encoder(voxel)
+
+                with torch.no_grad():
+                    image_upsampled = F.interpolate(image, (512, 512), mode='bilinear', align_corners=False, antialias=True)
+                    image_pred = diffusion_autoencoder.encode(2 * image_upsampled - 1).latent_dist.mode() * 0.18215
             
-            loss = F.mse_loss(voxel_pred, image_pred)
+                loss = F.l1_loss(voxel_pred, image_pred)
 
-            loss.backward()
-            optimizer.step()
-            lr_scheduler.step()
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                lr_scheduler.step()
 
-            print(f'Epoch {epoch} | Batch {i} | Loss {loss.item()}')
+                print(f'Epoch {epoch} | Batch {i} | Loss {loss.item()}')
     
-    torch.save(voxel_encoder.state_dict(), '../models/autoencoder_subj01/voxel_encoder.pt')
+    torch.save(voxel_encoder.state_dict(), 'models/autoencoder_subj01/voxel_encoder.pt') # ToDo: Change path
 
 
 def main():
