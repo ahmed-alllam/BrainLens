@@ -96,7 +96,7 @@ def train():
                 optimizer.step()
                 lr_scheduler.step()
 
-                print(f'Epoch {epoch} | Batch {i} | Loss {loss.item()}')
+    print(f'Finished Training VoxelEncoder')
     
     torch.save(voxel_encoder.state_dict(), 'models/autoencoder_subj01/voxel_encoder.pt') # ToDo: Change path
 
