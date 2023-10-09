@@ -57,15 +57,10 @@ def train():
 
     voxel_encoder = create_model()
 
-    diffusion_autoencoder = AutoencoderKL(
-        down_block_types=['DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D', 'DownEncoderBlock2D'],
-        up_block_types=['UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D', 'UpDecoderBlock2D'],
-        block_out_channels=[128, 256, 512, 512],
-        layers_per_block=2,
-        sample_size=256
-    )
+    diffusion_autoencoder = AutoencoderKL.from_single_file("https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors")
 
-    # Todo: Load checkpoint of diffusion vae
+    diffusion_autoencoder.requires_grad_(False)
+    diffusion_autoencoder.eval()
 
     optimizer = optim.AdamW(voxel_encoder.parameters(), lr=initial_lr)
 
@@ -91,9 +86,8 @@ def train():
 
                 voxel_pred = voxel_encoder(voxel)
 
-                with torch.no_grad():
-                    image_upsampled = F.interpolate(image, (512, 512), mode='bilinear', align_corners=False, antialias=True)
-                    image_pred = diffusion_autoencoder.encode(2 * image_upsampled - 1).latent_dist.mode() * 0.18215
+                image_upsampled = F.interpolate(image, (512, 512), mode='bilinear', align_corners=False, antialias=True)
+                image_pred = diffusion_autoencoder.encode(2 * image_upsampled - 1).latent_dist.mode() * 0.18215
             
                 loss = F.l1_loss(voxel_pred, image_pred)
 
