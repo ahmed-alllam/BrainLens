@@ -75,7 +75,7 @@ The project utilizes the following technologies and libraries:
 [issues-shield]: https://img.shields.io/github/issues/ahmed-alllam/BrainLens.svg?style=for-the-badge
 [issues-url]: https://github.com/ahmed-alllam/BrainLens/issues
 [license-shield]: https://img.shields.io/github/license/ahmed-alllam/BrainLens.svg?style=for-the-badge
-[license-url]: https://github.com/ahmed-alllam/BrainLens/blob/master/LICENSE.txt
+[license-url]: https://github.com/ahmed-alllam/BrainLens/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/ahmed-e-allam
 [product-screenshot]: images/screenshot.png
