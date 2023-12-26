@@ -15,7 +15,7 @@
 <div align="center">
 
   <a href="https://github.com/ahmed-alllam/BrainLens">
-    <img src="data/fmri.webp" alt="fmri" width="500">
+    <img src="https://i.imgur.com/ubDbZiy.png" alt="fmri" width="500">
   </a>
 
 <h3 align="center">BrainLens: Image Reconstruction from Brain fMRI imaging using Diffusion Models</h3>

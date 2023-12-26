@@ -1,6 +1,0 @@
-outs:
-- md5: 592a542e0e5d0607a4331cdad63de3da.dir
-  size: 2472955835
-  nfiles: 1
-  hash: md5
-  path: autoencoder_subj01
