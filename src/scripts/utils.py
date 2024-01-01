@@ -1,4 +1,5 @@
-import json
+import requests, json
+
 import random
 
 import numpy as np
@@ -6,10 +7,12 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
+from huggingface_hub import HfFolder
 import webdataset as wds
 
-test_urls = "data/test/test_subj01_{i}.tar"
-meta_url = "data/meta.json"
+train_dataset_urls = "pipe:curl -s -L https://huggingface.co/datasets/pscotti/naturalscenesdataset/resolve/main/webdataset_avg_split/train/train_subj0{subj}_{i}.tar -H 'Authorization:Bearer {hf_token}'"
+test_dataset_urls = "pipe:curl -s -L https://huggingface.co/datasets/pscotti/naturalscenesdataset/resolve/main/webdataset_avg_split/test/test_subj0{subj}_{i}.tar -H 'Authorization:Bearer {hf_token}'"
+meta_dataset_url = "https://huggingface.co/datasets/pscotti/naturalscenesdataset/raw/main/webdataset_avg_split/metadata_subj0{subj}.json"
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -18,20 +21,34 @@ def seed_everything(seed):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
 
-def create_test_dataloader(batch_size, num_workers):
-    test_urls_list = list(test_urls.format(i=i) for i in range(1))
+def create_dataloader(batch_size, num_workers, train=True, num_splits=1, subjects=[0]):
+    hf_token = HfFolder().get_token()
 
-    dataset = wds.WebDataset(test_urls_list, resampled=False)\
+    if train:
+        dataset_urls = train_dataset_urls
+    else:
+        dataset_urls = test_dataset_urls
+
+    dataset_urls = [dataset_urls.format(subj=subj, i=i, hf_token=hf_token) for i in range(num_splits) for subj in subjects]
+
+    dataset = wds.WebDataset(dataset_urls, resampled=False)\
                 .decode("torch")\
                 .rename(images="jpg;png", voxels="nsdgeneral.npy", trial="trial.npy", coco="coco73k.npy", reps="num_uniques.npy")\
                 .to_tuple("voxels", "images", "coco")\
                 .batched(batch_size, partial=True)
 
-    dataloader = DataLoader(dataset, 
+    dataloader = DataLoader(dataset,
                             batch_size=None,
-                            shuffle=False, 
+                            shuffle=False,
                             num_workers=num_workers)
-    
-    num = json.load(open(meta_url))['totals']['test']
+
+    dataset_type = "train" if train else "test"
+
+    num = 0
+
+    for subj in subjects:
+        meta_file = requests.get(meta_dataset_url.format(subj=subj)).text
+        meta = json.loads(meta_file)
+        num += meta['totals'][dataset_type]
 
     return dataloader, num

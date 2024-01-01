@@ -48,14 +48,15 @@ def create_model():
 def train():
     utils.seed_everything(seed)
 
-    # voxel_image_dataloader, num_train_samples = utils.create_test_dataloader(  # ToDo: Change to train, once downloaded
-        # batch_size=batch_size,
-    #     num_workers=num_workers
-    # )
-    num_train_samples = 1
-    num_steps_per_epoch = 1
+    voxel_image_dataloader, num_train_samples = utils.create_dataloader(  # ToDo: Change to train, once downloaded
+        batch_size=batch_size,
+        num_workers=num_workers,
+        train=True,
+        num_splits=1,
+        subjects=[1]
+    )
 
-    # num_steps_per_epoch = num_train_samples // batch_size
+    num_steps_per_epoch = num_train_samples // batch_size
 
     voxel_auto_encoder = create_model()
 
@@ -79,9 +80,7 @@ def train():
     voxel_auto_encoder.to(device)
     diffusion_autoencoder.to(device)
 
-    print(f'Starting Training VoxelEncoder')
-    print("voxel_auto_encoder device: ", next(voxel_auto_encoder.parameters()).device)
-    print("diffusion_autoencoder device: ", next(diffusion_autoencoder.parameters()).device)
+    print(f'Starting Training VoxelAutoEncoder')
 
     for epoch in tqdm.tqdm(range(num_epochs)):
         for i, (voxel, image, _) in enumerate(voxel_image_dataloader):
