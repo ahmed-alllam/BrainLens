@@ -1,10 +1,10 @@
 from torch import nn
 
-from diffusers.models.vae import Decoder
+from diffusers.models.autoencoders.vae import Decoder
 
-class VoxelEncoder(nn.Module):
+class VoxelAutoEncoder(nn.Module):
     def __init__(self, input_dim=15724, hidden_dim=4069, num_blocks=4):
-        super(VoxelEncoder, self).__init__()
+        super(VoxelAutoEncoder, self).__init__()
 
         def linear_block(in_dim, out_dim, dropout_prob=0.5):
             return nn.Sequential(
