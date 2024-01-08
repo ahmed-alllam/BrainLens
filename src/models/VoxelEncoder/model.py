@@ -2,9 +2,9 @@ from torch import nn
 
 from diffusers.models.autoencoders.vae import Decoder
 
-class VoxelAutoEncoder(nn.Module):
-    def __init__(self, input_dim=15724, hidden_dim=4069, num_blocks=4):
-        super(VoxelAutoEncoder, self).__init__()
+class VoxelEncoder(nn.Module):
+    def __init__(self, input_dim=15724, hidden_dim=4096, num_blocks=4):
+        super(VoxelEncoder, self).__init__()
 
         def linear_block(in_dim, out_dim, dropout_prob=0.5):
             return nn.Sequential(
@@ -21,7 +21,7 @@ class VoxelAutoEncoder(nn.Module):
         
         self.group_norm = nn.GroupNorm(1, 64)
 
-        self.diffusion_decoder = Decoder(
+        self.upsampling_decoder = Decoder(
             in_channels=64,
             out_channels=4,
             up_block_types=["UpDecoderBlock2D","UpDecoderBlock2D","UpDecoderBlock2D"],
@@ -41,6 +41,6 @@ class VoxelAutoEncoder(nn.Module):
         x = x.view(-1, 64, 16, 16)
         x = self.group_norm(x)
 
-        x = self.diffusion_decoder(x)
+        x = self.upsampling_decoder(x)
 
         return x
