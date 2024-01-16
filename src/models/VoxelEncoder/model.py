@@ -3,6 +3,9 @@ from torch import nn
 from diffusers.models.autoencoders.vae import Decoder
 
 class VoxelEncoder(nn.Module):
+    """
+    Voxel encoder model used in the low-level pipeline.
+    """
     def __init__(self, input_dim=15724, hidden_dim=4096, num_blocks=4):
         super(VoxelEncoder, self).__init__()
 
