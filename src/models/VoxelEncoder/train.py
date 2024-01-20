@@ -50,7 +50,7 @@ def train():
     voxel_image_dataloader, num_train_samples = utils.create_dataloader(
         batch_size=batch_size,
         num_workers=num_workers,
-        train=True,
+        split='train',
         num_splits=1,
         subjects=[1]
     )
