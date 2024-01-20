@@ -23,6 +23,15 @@ input_dim=15724
 hidden_dim=4096
 num_blocks=4
 
+subject = 1
+
+batch_size = 32
+num_workers = 4
+num_epochs = 240
+
+lr_scheduler = 'cycle'
+max_lr = 3e-4
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def create_model():
@@ -42,7 +51,7 @@ def train():
         num_workers=num_workers,
         split='train',
         num_splits=1,
-        subjects=[1]
+        subjects=[subject]
     )
 
     voxel_net = create_model().to(device)

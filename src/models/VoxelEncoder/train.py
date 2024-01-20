@@ -25,6 +25,8 @@ input_dim=15724
 hidden_dim=4096
 num_blocks=4
 
+subject = 1
+
 batch_size = 64
 num_workers = 4
 num_epochs = 120
@@ -52,7 +54,7 @@ def train():
         num_workers=num_workers,
         split='train',
         num_splits=1,
-        subjects=[1]
+        subjects=[subject]
     )
 
     num_steps_per_epoch = num_train_samples // batch_size

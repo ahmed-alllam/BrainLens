@@ -21,10 +21,10 @@ def seed_everything(seed):
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
 
-def create_dataloader(batch_size, num_workers, train=True, num_splits=1, subjects=[0]):
+def create_dataloader(batch_size, num_workers, split='train', num_splits=1, subjects=[0]):
     hf_token = HfFolder().get_token()
 
-    if train:
+    if split == 'train':
         dataset_urls = train_dataset_urls
     else:
         dataset_urls = test_dataset_urls
@@ -42,13 +42,11 @@ def create_dataloader(batch_size, num_workers, train=True, num_splits=1, subject
                             shuffle=False,
                             num_workers=num_workers)
 
-    dataset_type = "train" if train else "test"
-
     num = 0
 
     for subj in subjects:
         meta_file = requests.get(meta_dataset_url.format(subj=subj)).text
         meta = json.loads(meta_file)
-        num += meta['totals'][dataset_type]
+        num += meta['totals'][split]
 
     return dataloader, num
