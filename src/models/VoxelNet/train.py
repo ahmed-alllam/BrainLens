@@ -130,10 +130,9 @@ def train():
                 image_embeddings = F.normalize(image_embeddings.flatten(1), dim=-1)
 
                 voxel_embeddings = voxel_net(voxel)
-                aligned_voxel_embeddings = diffusion_prior(text_embed=voxel_embeddings, image_embed=image_embeddings, return_loss=False)
-                aligned_voxel_embeddings = F.normalize(aligned_voxel_embeddings.flatten(1), dim=-1)
+                prior_loss = diffusion_prior(text_embed=voxel_embeddings, image_embed=image_embeddings)
 
-                loss = None
+                loss = prior_loss + 30 * utils.soft_clip_loss(voxel_embeddings, image_embeddings)
 
                 loss.backward()
                 optimizer.step()
