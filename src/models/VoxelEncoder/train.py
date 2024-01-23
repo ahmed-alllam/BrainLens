@@ -31,7 +31,6 @@ batch_size = 64
 num_workers = 4
 num_epochs = 120
 
-lr_scheduler = 'cycle'
 initial_lr = 1e-3
 max_lr = 5e-4
 
@@ -57,7 +56,6 @@ def train():
         subjects=[subject]
     )
 
-    num_steps_per_epoch = num_train_samples // batch_size
 
     voxel_encoder = create_model()
 
@@ -68,12 +66,13 @@ def train():
 
     optimizer = optim.AdamW(voxel_encoder.parameters(), lr=initial_lr)
 
+    num_steps_per_epoch = num_train_samples // batch_size
+
     lr_scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
         epochs=num_epochs,
         max_lr=max_lr,
         steps_per_epoch=num_steps_per_epoch,
-        div_factor=1e3,
         final_div_factor=1e3,
         pct_start=2/num_epochs,
     )

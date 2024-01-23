@@ -4,3 +4,5 @@ tqdm==4.66.1
 numpy==1.26.2
 webdataset==0.2.86
 huggingface-hub==0.20.1
+transformers==4.37.0
+torchvision==0.16.2
