@@ -6,3 +6,4 @@ webdataset==0.2.86
 huggingface-hub==0.20.1
 transformers==4.37.0
 torchvision==0.16.2
+dalle2-pytorch==1.15.6

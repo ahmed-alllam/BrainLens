@@ -51,7 +51,7 @@ def create_dataloader(batch_size, num_workers, split='train', num_splits=1, subj
 
     return dataloader, num
 
-def soft_clip_loss(voxel_embedding, image_embedding, temp=0.125):
+def soft_clip_loss(voxel_embeddings, image_embeddings, temp=0.125):
     clip_clip = (image_embeddings @ image_embeddings.T)/temp
     brain_embeddings = (voxel_embeddings @ image_embeddings.T)/temp
 
