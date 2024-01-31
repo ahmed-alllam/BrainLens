@@ -12,7 +12,7 @@ class VoxelNet(nn.Module):
             return nn.Sequential(
                 nn.Linear(in_dim, out_dim),
                 nn.LayerNorm(out_dim),
-                nn.GELU(inplace=True),
+                nn.GELU(),
                 nn.Dropout(dropout_prob)
             )
 
